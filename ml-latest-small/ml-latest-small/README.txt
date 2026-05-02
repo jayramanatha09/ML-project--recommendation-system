@@ -1,153 +1,183 @@
-Summary
-=======
+# 🎬 Movie Recommender System (SVD-Based)
 
-This dataset (ml-latest-small) describes 5-star rating and free-text tagging activity from [MovieLens](http://movielens.org), a movie recommendation service. It contains 100836 ratings and 3683 tag applications across 9742 movies. These data were created by 610 users between March 29, 1996 and September 24, 2018. This dataset was generated on September 26, 2018.
+## 📌 Overview
 
-Users were selected at random for inclusion. All selected users had rated at least 20 movies. No demographic information is included. Each user is represented by an id, and no other information is provided.
+This project implements a personalized movie recommendation system using Collaborative Filtering with Singular Value Decomposition (SVD).
 
-The data are contained in the files `links.csv`, `movies.csv`, `ratings.csv` and `tags.csv`. More details about the contents and use of all these files follows.
+Users can:
+- Select multiple movies
+- Provide ratings (1–5)
+- Receive personalized movie recommendations
 
-This is a *development* dataset. As such, it may change over time and is not an appropriate dataset for shared research results. See available *benchmark* datasets if that is your intent.
+The system predicts how much a user would like unseen movies using latent factor modeling.
 
-This and other GroupLens data sets are publicly available for download at <http://grouplens.org/datasets/>.
+---
 
+## 🚀 Features
 
-Usage License
-=============
+- Multi-movie rating input
+- SVD-based collaborative filtering
+- Predicted ratings (0–5 scale)
+- Real-time recommendations using Streamlit
+- Handles new users (cold-start problem)
 
-Neither the University of Minnesota nor any of the researchers involved can guarantee the correctness of the data, its suitability for any particular purpose, or the validity of results based on the use of the data set. The data set may be used for any research purposes under the following conditions:
+---
 
-* The user may not state or imply any endorsement from the University of Minnesota or the GroupLens Research Group.
-* The user must acknowledge the use of the data set in publications resulting from the use of the data set (see below for citation information).
-* The user may redistribute the data set, including transformations, so long as it is distributed under these same license conditions.
-* The user may not use this information for any commercial or revenue-bearing purposes without first obtaining permission from a faculty member of the GroupLens Research Project at the University of Minnesota.
-* The executable software scripts are provided "as is" without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the quality and performance of them is with you. Should the program prove defective, you assume the cost of all necessary servicing, repair or correction.
+## 🧠 How It Works
 
-In no event shall the University of Minnesota, its affiliates or employees be liable to you for any damages arising out of the use or inability to use these programs (including but not limited to loss of data or data being rendered inaccurate).
+### 1. Data Representation
 
-If you have any further questions or comments, please email <grouplens-info@umn.edu>
+A user-item matrix is created from the dataset:
 
+User × Movie → Rating
 
-Citation
-========
+---
 
-To acknowledge use of the dataset in publications, please cite the following paper:
+### 2. Mean Centering
 
-> F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets: History and Context. ACM Transactions on Interactive Intelligent Systems (TiiS) 5, 4: 19:1–19:19. <https://doi.org/10.1145/2827872>
+To remove user bias:
 
+centered_matrix = user_item_matrix - user_mean
 
-Further Information About GroupLens
-===================================
+This ensures users who rate consistently high or low are normalized.
 
-GroupLens is a research group in the Department of Computer Science and Engineering at the University of Minnesota. Since its inception in 1992, GroupLens's research projects have explored a variety of fields including:
+---
 
-* recommender systems
-* online communities
-* mobile and ubiquitious technologies
-* digital libraries
-* local geographic information systems
+### 3. SVD Decomposition
 
-GroupLens Research operates a movie recommender based on collaborative filtering, MovieLens, which is the source of these data. We encourage you to visit <http://movielens.org> to try it out! If you have exciting ideas for experimental work to conduct on MovieLens, send us an email at <grouplens-info@cs.umn.edu> - we are always interested in working with external collaborators.
+The matrix is factorized into:
 
+User Factors × Movie Factors
 
-Content and Use of Files
-========================
+This helps learn hidden preferences such as:
+- genre liking
+- style preference
+- viewing patterns
 
-Formatting and Encoding
------------------------
+---
 
-The dataset files are written as [comma-separated values](http://en.wikipedia.org/wiki/Comma-separated_values) files with a single header row. Columns that contain commas (`,`) are escaped using double-quotes (`"`). These files are encoded as UTF-8. If accented characters in movie titles or tag values (e.g. Misérables, Les (1995)) display incorrectly, make sure that any program reading the data, such as a text editor, terminal, or script, is configured for UTF-8.
+### 4. New User Input
 
+When a user provides ratings:
+- A user vector is created
+- It is mean-centered
+- Projected into latent space using SVD
 
-User Ids
---------
+---
 
-MovieLens users were selected at random for inclusion. Their ids have been anonymized. User ids are consistent between `ratings.csv` and `tags.csv` (i.e., the same id refers to the same user across the two files).
+### 5. Prediction
 
+Ratings are reconstructed using:
 
-Movie Ids
----------
+predicted = latent_user × components + user_mean
 
-Only movies with at least one rating or tag are included in the dataset. These movie ids are consistent with those used on the MovieLens web site (e.g., id `1` corresponds to the URL <https://movielens.org/movies/1>). Movie ids are consistent between `ratings.csv`, `tags.csv`, `movies.csv`, and `links.csv` (i.e., the same id refers to the same movie across these four data files).
+This gives predicted ratings for all movies.
 
+---
 
-Ratings Data File Structure (ratings.csv)
------------------------------------------
+### 6. Recommendation
 
-All ratings are contained in the file `ratings.csv`. Each line of this file after the header row represents one rating of one movie by one user, and has the following format:
+- Already rated movies are removed
+- Movies are sorted by predicted rating
+- Top N movies are recommended
 
-    userId,movieId,rating,timestamp
+---
 
-The lines within this file are ordered first by userId, then, within user, by movieId.
+## 📊 Output
 
-Ratings are made on a 5-star scale, with half-star increments (0.5 stars - 5.0 stars).
+The system displays:
+- Movie title
+- Predicted rating (0–5)
 
-Timestamps represent seconds since midnight Coordinated Universal Time (UTC) of January 1, 1970.
+---
 
+## 📁 Dataset
 
-Tags Data File Structure (tags.csv)
------------------------------------
+MovieLens Latest Small Dataset
 
-All tags are contained in the file `tags.csv`. Each line of this file after the header row represents one tag applied to one movie by one user, and has the following format:
+- 100,836 ratings
+- 9,742 movies
+- 610 users
+- Rating scale: 0.5 to 5.0
 
-    userId,movieId,tag,timestamp
+Files used:
+- ratings.csv
+- movies.csv
 
-The lines within this file are ordered first by userId, then, within user, by movieId.
+---
 
-Tags are user-generated metadata about movies. Each tag is typically a single word or short phrase. The meaning, value, and purpose of a particular tag is determined by each user.
+## ⚙️ Tech Stack
 
-Timestamps represent seconds since midnight Coordinated Universal Time (UTC) of January 1, 1970.
+- Python
+- Streamlit
+- Pandas
+- NumPy
+- Scikit-learn (TruncatedSVD)
 
+---
 
-Movies Data File Structure (movies.csv)
----------------------------------------
+## ▶️ How to Run
 
-Movie information is contained in the file `movies.csv`. Each line of this file after the header row represents one movie, and has the following format:
+1. Install dependencies:
 
-    movieId,title,genres
+pip install pandas numpy scikit-learn streamlit
 
-Movie titles are entered manually or imported from <https://www.themoviedb.org/>, and include the year of release in parentheses. Errors and inconsistencies may exist in these titles.
+2. Run the app:
 
-Genres are a pipe-separated list, and are selected from the following:
+streamlit run app.py
 
-* Action
-* Adventure
-* Animation
-* Children's
-* Comedy
-* Crime
-* Documentary
-* Drama
-* Fantasy
-* Film-Noir
-* Horror
-* Musical
-* Mystery
-* Romance
-* Sci-Fi
-* Thriller
-* War
-* Western
-* (no genres listed)
+---
 
+## 🧪 Example Workflow
 
-Links Data File Structure (links.csv)
----------------------------------------
+1. Select movies:
+   Toy Story, Jumanji
 
-Identifiers that can be used to link to other sources of movie data are contained in the file `links.csv`. Each line of this file after the header row represents one movie, and has the following format:
+2. Rate them:
+   Toy Story → 5
+   Jumanji → 4
 
-    movieId,imdbId,tmdbId
+3. Click "Recommend"
 
-movieId is an identifier for movies used by <https://movielens.org>. E.g., the movie Toy Story has the link <https://movielens.org/movies/1>.
+4. Output:
+   Shrek → 4.3
+   Finding Nemo → 4.1
 
-imdbId is an identifier for movies used by <http://www.imdb.com>. E.g., the movie Toy Story has the link <http://www.imdb.com/title/tt0114709/>.
+---
 
-tmdbId is an identifier for movies used by <https://www.themoviedb.org>. E.g., the movie Toy Story has the link <https://www.themoviedb.org/movie/862>.
+## 🔍 Key Concepts
 
-Use of the resources listed above is subject to the terms of each provider.
+- Collaborative Filtering: Uses user behavior instead of content
+- Latent Factors: Hidden patterns learned by SVD
+- Cold Start: New users handled using input ratings
 
+---
 
-Cross-Validation
-----------------
+## ⚠️ Limitations
 
-Prior versions of the MovieLens dataset included either pre-computed cross-folds or scripts to perform this computation. We no longer bundle either of these features with the dataset, since most modern toolkits provide this as a built-in feature. If you wish to learn about standard approaches to cross-fold computation in the context of recommender systems evaluation, see [LensKit](http://lenskit.org) for tools, documentation, and open-source code examples.
+- Does not use movie content (genres, tags)
+- Cannot recommend completely new movies without ratings
+- Depends on dataset quality
+
+---
+
+## 🚀 Future Improvements
+
+- Hybrid model (SVD + content-based)
+- Add movie posters
+- Add evaluation metrics (Precision@K, RMSE)
+- Improve UI/UX
+
+---
+
+## 🧠 Conclusion
+
+This system demonstrates a collaborative filtering approach using SVD to learn user preferences and generate personalized recommendations.
+
+---
+
+## 📚 Reference
+
+F. Maxwell Harper and Joseph A. Konstan.  
+The MovieLens Datasets: History and Context.  
+ACM Transactions on Interactive Intelligent Systems (TiiS), 2015.
